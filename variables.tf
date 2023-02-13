@@ -16,3 +16,7 @@ variable "admin_username" {
 variable "admin_password" {
    description = "GuestOS password"
 }
+
+variable "tls_private_key" {
+    default = ""
+}
