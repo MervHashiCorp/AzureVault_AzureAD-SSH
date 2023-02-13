@@ -58,6 +58,12 @@ resource "azurerm_network_interface" "adssh" {
   }
 }
 
+# Create (and display) an SSH key
+resource "tls_private_key" "adssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "azurerm_linux_virtual_machine" "adssh" {
   name                = "adssh-machine"
   resource_group_name = azurerm_resource_group.adssh.name
@@ -67,12 +73,6 @@ resource "azurerm_linux_virtual_machine" "adssh" {
   network_interface_ids = [
     azurerm_network_interface.adssh.id,
   ]
-
-# Create (and display) an SSH key
-resource "tls_private_key" "adssh" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
 
   admin_ssh_key {
     username   = var.admin_username
