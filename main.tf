@@ -69,14 +69,14 @@ resource "azurerm_linux_virtual_machine" "adssh" {
   ]
 
 # Create (and display) an SSH key
-resource "tls_private_key" "example_ssh" {
+resource "tls_private_key" "adssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = tls_private_key.example_ssh.public_key_openssh
+    public_key = tls_private_key.adssh.public_key_openssh
   }
 
   os_disk {
