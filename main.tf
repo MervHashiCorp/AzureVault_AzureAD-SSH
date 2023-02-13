@@ -10,11 +10,23 @@ terraform {
     required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "=3.43.0"
+      version = "~>3.43.0"
+    }
+    tls = {
+      source = "hashicorp/tls"
+      version = "~>4.0"
     }
   }  
 }
 
+provider "azurerm" {
+  features {}
+}
+
+
+
+
+#Linux VM
 resource "azurerm_resource_group" "adssh" {
   name     = "adssh-resources"
   location = var.location
@@ -56,9 +68,15 @@ resource "azurerm_linux_virtual_machine" "adssh" {
     azurerm_network_interface.adssh.id,
   ]
 
+# Create (and display) an SSH key
+resource "tls_private_key" "example_ssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
   admin_ssh_key {
     username   = var.admin_username
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = tls_private_key.example_ssh.public_key_openssh
   }
 
   os_disk {
