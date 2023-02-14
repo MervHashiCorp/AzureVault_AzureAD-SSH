@@ -91,3 +91,11 @@ resource "azurerm_linux_virtual_machine" "adssh" {
     version   = "latest"
   }
 }
+
+resource "azurerm_public_ip" "adssh" {
+  name                = "adssh-publicip"
+  location            = azurerm_resource_group.adssh.location
+  resource_group_name = azurerm_resource_group.adssh.name
+  allocation_method   = "Static"
+  sku                 = "Basic"
+}
