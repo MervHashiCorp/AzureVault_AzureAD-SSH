@@ -33,7 +33,7 @@ resource "azurerm_virtual_network" "adssh" {
 }
 
 resource "azurerm_resource_group" "adssh" {
-  name     = "adssh-resources"
+  name     = "RG_adssh"
   location = var.location
 }
 
