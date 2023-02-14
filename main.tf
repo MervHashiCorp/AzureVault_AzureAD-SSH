@@ -23,12 +23,18 @@ provider "azurerm" {
   features {}
 }
 
+
 # Create virtual network
 resource "azurerm_virtual_network" "adssh" {
   name                = "adssh-Vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.adssh.location
   resource_group_name = azurerm_resource_group.adssh.name
+}
+
+resource "azurerm_resource_group" "adssh" {
+  name     = "adssh-resources"
+  location = var.location
 }
 
 # Create subnet
@@ -81,45 +87,13 @@ resource "azurerm_network_interface" "adssh" {
   }
 }
 
-
-#Linux VM
-resource "azurerm_resource_group" "adssh" {
-  name     = "adssh-resources"
-  location = var.location
-}
-
-resource "azurerm_virtual_network" "adssh" {
-  name                = "adssh-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.adssh.location
-  resource_group_name = azurerm_resource_group.adssh.name
-}
-
-resource "azurerm_subnet" "adssh" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.adssh.name
-  virtual_network_name = azurerm_virtual_network.adssh.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_network_interface" "adssh" {
-  name                = "adssh-nic"
-  location            = azurerm_resource_group.adssh.location
-  resource_group_name = azurerm_resource_group.adssh.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.adssh.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
 # Create (and display) an SSH key
 resource "tls_private_key" "adssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
+#Linux VM
 resource "azurerm_linux_virtual_machine" "adssh" {
   name                = "adssh-machine"
   resource_group_name = azurerm_resource_group.adssh.name
