@@ -83,7 +83,7 @@ resource "azurerm_network_interface" "adssh" {
     name                          = "adssh-nic_configuration"
     subnet_id                     = azurerm_subnet.adssh.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.adssh_ip.id
+    public_ip_address_id          = azurerm_public_ip.adssh.id
   }
 }
 
