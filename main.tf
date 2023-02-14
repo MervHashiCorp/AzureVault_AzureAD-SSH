@@ -1,6 +1,6 @@
 terraform {
     cloud {
-    organization = "MervTrainingOrg"
+    oadsshanization = "MervTrainingOrg"
     hostname = "app.terraform.io" # Optional; defaults to app.terraform.io
     workspaces {
       names = "AzureVault_AzureAD-SSH"
@@ -23,7 +23,63 @@ provider "azurerm" {
   features {}
 }
 
+# Create virtual network
+resource "azurerm_virtual_network" "adssh" {
+  name                = "adssh-Vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = azurerm_resource_group.adssh.location
+  resource_group_name = azurerm_resource_group.adssh.name
+}
 
+# Create subnet
+resource "azurerm_subnet" "adssh" {
+  name                 = "adssh-Subnet"
+  resource_group_name  = azurerm_resource_group.adssh.name
+  virtual_network_name = azurerm_virtual_network.adssh.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+# Create public IPs
+resource "azurerm_public_ip" "adssh" {
+  name                = "adssh-publicip"
+  location            = azurerm_resource_group.adssh.location
+  resource_group_name = azurerm_resource_group.adssh.name
+  allocation_method   = "Static"
+  sku                 = "Basic"
+}
+
+# Create Network Security Group and rule
+resource "azurerm_network_security_group" "adssh" {
+  name                = "adssh-NetworkSecurityGroup"
+  location            = azurerm_resource_group.adssh.location
+  resource_group_name = azurerm_resource_group.adssh.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 1001
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+
+# Create network interface
+resource "azurerm_network_interface" "adssh-terraform_nic" {
+  name                = "adssh-nic"
+  location            = azurerm_resource_group.adssh.location
+  resource_group_name = azurerm_resource_group.adssh.name
+
+  ip_configuration {
+    name                          = "adssh-nic_configuration"
+    subnet_id                     = azurerm_subnet.adssh.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.adssh_ip.id
+  }
+}
 
 
 #Linux VM
@@ -90,12 +146,4 @@ resource "azurerm_linux_virtual_machine" "adssh" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
-}
-
-resource "azurerm_public_ip" "adssh" {
-  name                = "adssh-publicip"
-  location            = azurerm_resource_group.adssh.location
-  resource_group_name = azurerm_resource_group.adssh.name
-  allocation_method   = "Static"
-  sku                 = "Basic"
 }
