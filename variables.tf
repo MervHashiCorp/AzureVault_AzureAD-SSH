@@ -18,5 +18,5 @@ variable "admin_password" {
 }
 
 variable "tls_private_key" {
-    default = tls_private_key.adssh.private_key_pem
+    default = ""
 }
