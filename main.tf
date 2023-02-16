@@ -92,6 +92,11 @@ resource "tls_private_key" "adssh" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
+resource "local_file" "private_key" {
+  content         = tls_private_key.adssh.private_key_pem
+  filename        = "id_rsa"
+  file_permission = "0600"
+}
 
 #Linux VM
 resource "azurerm_linux_virtual_machine" "adssh" {
